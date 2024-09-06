@@ -1,0 +1,151 @@
+# Amazon Q
+Đăng ký tk và cấp quyền.
+Extension AI giúp code suggestion. App là AI recommend cho cmd luôn.
+
+
+
+# EC2
+Elastic Compute Cloud là 1 dịch vụ của AWS để thuê máy chủ ảo để chạy ứng dụng, như 1 VPS.
+EC2 có đặc điểm trả phí tự scale tăng giảm server tuỳ lượng người dùng truy cập. Do đó các web nhỏ như blog web k nên dùng. VD có 1 blog hot nhiều ngừoi truy cập sẽ tự tăng số server lên tốn rất nhiều tiền nếu ta k để ý. Thay vì vậy nên dùng cloud khác có fix giới hạn băng thông để nhiều user truy cập quá băng thông sẽ chỉ bị loading lâu hơn.
+
+-> URL tạo EC2: https://www.youtube.com/watch?v=aLOcO8qT7k0&t=4s
+URL cài nodejs và nginx EC2: https://www.youtube.com/watch?v=OWS7h5Mm-v8&t=275s
+server {
+  server_name 54.169.183.179;
+  access_log /var/log/nginx/test.com-access.log;
+  error_log /var/log/nginx/test.com-error.log;
+  location / {
+    proxy_pass http://localhost:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_uprade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Forward-For $remote_addr;
+    proxy_cache_bypass $http_upgrade;
+    proxy_connect_timeout 60;
+    proxy_send_timeout 60;
+    proxy_read_timeout 60;
+  }
+}
+Lệnh ping phải enable inbound rule Custom ICMP Echo Request vì lệnh ping dùng ICMP.
+Để có trang web chuẩn phải mua 1 domain và mua chứng chỉ SSL. Amazon cấu hình router public IP rồi. Phải mua 1 domain để cấu hình DNS trỏ vào IP đó. 
+Certbot có thể tạo chứng chỉ SSL free 3 tháng uy tín, hết 3 tháng cấu hình lại là được. Chỉ khác chứng chỉ trả phí là trả phí thì bảo mật hơn thôi. 
+
+-> Dùng MySQL trên EC2
+--> Section 70
+Nên dùng linux cho MySQL, ubuntu cho web server.
+Key pem phải lưu vào thư mục ~/.ssh có ở mọi máy: mv <source> ~/.ssh/
+Vào ubuntu thì việc đầu tiên nên làm là: sudo apt-get update 
+
+--> Section 71
+Setup mysql trên EC2 linux, truy cập với quyền admin
+
+--> Section 72
+Có thể upload file từ local lên EC2. VD upload file sql lên EC2 để chạy lệnh SQL trên EC2.
+Tạo users trên SQL và cấp quyền truy cập db cụ thể.  
+Connect vào mysql trên EC2 bằng tool UI, config rule EC2 cho phép vào mysql
+
+-> Section 73: 
+CI/CD github EC2: Connect từ EC2 vào github runner -> Tạo file actions có action checkout là push code từ git vào máy runner là EC2.
+Ta chọn chạy trên self-hosted vì máy linux đang chạy runner chính là máy amazon đang host luôn.
+Lệnh npm ci trong github actions là để xoá package trên máy và cài mới lại. Thêm lệnh restart server để khởi động lại thôi.
+Local push code github -> github action bắt sự kiện sẽ chạy trên máy runner là EC2 -> push code lên EC2, npm ci, restart server, cần thêm .env nữa
+
+-> Section 74: 
+Setup nginx làm reverse proxy bắt request đi vào server http cổng 80 thì chuyển sang http://localhost:3000
+- 1 vài rules phải enabled khi dùng: 
+Custom TCP => cho custom port, vd chạy server ở cổng bất kỳ
+HTTP 80 => nginx apache phải có
+HTTPS 443 => khi dùng thêm SSL
+MySQL 3306 => khi dùng mysql protocol
+SSH 22 => luôn có để SSH vào EC2
+ 
+-> Section 75: Setup domain hosting vào nginx. Dùng certbot ký SSL free . Tạo cron job service tự gia hạn SSL mỗi 90 ngày.
+
+ 
+
+# Simple Storage Service (S3)
+Là 1 bucket lưu data, có thể upload file vào. Liên kết ứng dụng vào aws để upload file, quản lý truy cập thêm, xoá, get files.
+ 67 68 69
+
+-> IAM (idenity and access management) là 1 service trong aws giúp tạo ra các user và cấp quyền user đó được phép làm gì với mọi loại dịch vụ khác.
+
+VD có thể giới hạn user được thao tác với bucket S3 nào, có quyền đọc ghi hay xoá, được phép gọi các function nào.
+Tạo policy -> cấp quyền với ARNs là tên của bucket S3 -> Tạo user -> Attach policies directly -> gán policy cho user -> App sẽ truy cập AWS resources dưới danh nghĩa user này
+Chọn user -> Create access key -> Dùng trong nodejs thì chọn "Third-party service" -> username là access key, password là secret access key -> NodeJS upload file lên S3 với tk đó bằng @aws-sdk/client-s3
+=> ref tới series Ecommerce: section 65 66
+
+Upload file lên để lấy url truy cập file phải dùng package "@aws-sdk/s3-request-presigner". File upload kp ai cũng truy cập được, package này sẽ gửi request lên aws để lấy 1 url S3 có thông tin mã hoá và thời gian hết hạn để truy cập file, điều này giúp cản người khác lấy link của ta cho vào web của họ.
+=> ref tới section 67
+
+Ta upload file lên cloud ở singapore nhưng người nước xa sẽ truy cập bị chậm, phải dùng cloudfront kết hợp S3 để tối ưu, nó sẽ phân phối tài nguyên tới CDN server ở nhiều nước.
+Tạo cloudfront distribution mới trên aws -> Option Origin access là "Public" thì ai cũng truy cập được link S3 gốc và link của cloudfront, hoặc là "Legacy access identities" là link S3 gốc sẽ k truy cập được nữa mà chỉ truy cập link do cloudfront sinh ra thôi. Link do cloudfront sinh ra sẽ có 1 origin access identity (OAI) để access thôi -> Yes, update the bucket policy -> Do not enable security protections -> Thay thế link cloudfront cho phần hostname của link S3 gốc là được
+Còn rất nhiều options khác như dùng HTTP2/HTTP3, ipv6, cho phép user nhúng thẻ vào web họ không (tốn băng thông cho web khác), tự xoá cache sau 1 ngày để tối ưu bộ nhớ.
+=> ref tới section 68
+
+Cloudfront tạo link truy cập bởi bất cứ ai vói thời gian vô hạn. Ta cần thêm expires time vào url và mã hoá thành signed url để tăng bảo mật. Người khác k có private key sẽ k thể lấy url, có lấy được cũng chỉ truy cập được trong expires time.
+Dùng openssl sinh cặp key -> vào cloudfront aws -> Thêm "Public key" vừa tạo -> Tạo "Key group" và thêm public key vào group -> Edit behavior của cloudfront distribution -> "Restrict viewer access" chọn là Yes -> chọn key group vừa tạo. Đây là tính năng giúp mã hoá url -> Vào lại url gốc sẽ k truy cập được nữa mà phải dùng private key trên nodejs server để sinh 1 signed url mà truy cập file, dùng @aws-sdk/cloudfront-signer (trường keyPairId là id của public key trên cloudfront aws)
+=> ref tới section 69
+
+-> CDNKey: website giúp test performance của CDN, nó sẽ gửi request truy cập từ nhiều nơi trên thế giới vào assets của ta để test tốc độ. 
+
+
+
+# Amazon có vô số services, nhiều services giống nhau chỉ khác có 1 tí để tối ưu cho case cụ thể:
+-> Robotmaker: simulate và test robot AI
+-> IoT Core: thu thập data từ robot sau khi được đưa vào sử dụng, update phần mềm và quản lý robots remotely.
+-> Ground station: dùng rada của amazon để connect với vệ tinh 
+-> Bracket: dùng quantum computer của amazon 
+-> Budgets: quản lý lượng tiền sử dụng, tránh amazon trừ tiền bất thường vì dịch vụ nào bị quá tải.
+
+-> Load balancer: phân phối tải cho các instance
+-> Cloud watch: thu thập log và metrics thống kê từ các instance 
+-> Auto scaling: nhận dữ liệu từ cloud watch và setup rules để thêm hay bớt server tuỳ ý dựa trên lượng traffic chẳng hạn
+-> Elastic beanstalk: abstract của EC2 và auto scaling dùng dễ hơn và mọi thứ tự động 
+
+-> Lightsail: service đơn giản nhất để deploy ứng dụng wordpress, nodejs, php chỉ với vài dòng click
+-> Lamba: mô hình serverless, chỉ cần đăng code lên và chọn event xác định khi nào thì chạy code. 
+-> Serverless repo: thậm chí lười viết code, ta có thể lấy sẵn pre-built function để deploy chạy 
+-> Outposts: nếu ta có sẵn server và muốn custom việc chạy function trên đó thông qua các API thì dùng. 
+-> Snow: khi cần dùng aws ở môi trường k có mạng hay khắc nhiệt như ở nam cực.
+
+-> Container registry: user có thể upload docker image lên đây 
+-> Container service: có thể pull image từ registry về để chạy. Phải thông qua EC2 để allocate vùng nhớ cho container mà dùng.
+-> Kubernetes service: chạy K8s 
+-> Fargate: khiến container hoạt động như 1 serverless function, k cần allocate vùng nhớ từ EC2 nữa.
+-> App runners: chạy ứng dụng từ container image, tự động scale và làm mọi thứ khác.  
+
+-> Glacier: tương tự S3 nhưng delay lớn hơn và giá rẻ hơn, dùng cho các archive file rất ít khi truy cập.
+-> Block storage: tương tự S3, khi cần tốc độ cao và có thể xử lý phức tạp data nặng.
+-> Elastic file system: performance tốt hơn và giá cao hơn. 
+-> Simple DB: nosql db đơn giản.
+-> Dynamo DB: mạnh hơn simple DB, rẻ, nhanh, scale dễ nhưng query vẫn yếu và k có join
+-> Document DB: mạnh như mongodb
+-> Elastic search: full text search
+-> RDB: amazon relational db support mọi loại SQL 
+-> Aurora: phiên bản SQL riêng của amazon, nhanh hơn mysql và giá rẻ hơn, hỗ trợ cả dạng serverless
+-> Neptune: graph database có performance cao hơn với connected data set dạng graph.
+-> Elastic cache: giống redis
+-> Timestream: time series database, dễ dàng thống kê
+-> Quantum ledger database: lưu data k thể thay đổi được ký mã hoá như blockchain 
+
+-> Redshift: 1 cái stores để dump mọi data từ nhiều source vào phục vụ cho thống kê
+-> Lake information: nếu có quá nhiều data unstructured cần lưu thì cho vào data-lake này.
+-> Kinesis: tool giúp capture realtime data từ stream nào đó và visualize. 
+-> Map reduce: để xử lý realtime stream phức tạp, lớn và song song, có thể dùng Apache spark cho chạy trên Elastic Map Reduce.
+-> MSK: tool khác giống kinesis nhưng khi ta muốn chạy Apache Kafka 
+-> Glue: là tool serverless đơn giản hơn trong việc extract, transform, load data, thậm chí k cần viết code. Nó tự động connect vào các datasource trên aws như aurora.
+
+-> Data exchange: nơi mua quality data từ các third party khác.
+-> Sagemaker: connect vào data và dùng tensorflow hay pytorch để tạo model ML, train và deploy.
+-> Rekognition: cùng api dùng model classification tối ưu có sẵn k cần phải tự viết nữa. 
+-> Lex: tạo chatbot, như con alexa.
+-> Deep racer: có thể mua thiết bị deep racer để điều khiển với code ML ta tự tích hợp qua service deep racer.
+
+-> IAM
+-> Cognito: tạo login nhiều hình thức qua email, mã điện thoại, quản lý session
+-> Simple notification service: gửi push notification cho user qua ứng dụng mobile
+-> Simple email service
+-> Cloud formation: giúp tạo template cho các service bằng yaml, là có thể tạo hàng trăm service với config tuỳ chỉnh chỉ với vài click
+-> Amplify: tương tác với hàng loạt aws service đã tạo từ các loại FE android, iOS, web.
+
