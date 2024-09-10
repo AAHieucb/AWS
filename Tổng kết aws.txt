@@ -1,14 +1,13 @@
 # Amazon Q
-Đăng ký tk và cấp quyền.
-Extension AI giúp code suggestion. App là AI recommend cho cmd luôn.
+Extension AI giúp code suggestion, AI recommend cho cmd luôn.
 
 
 
 # EC2
-Elastic Compute Cloud là 1 dịch vụ của AWS để thuê máy chủ ảo để chạy ứng dụng, như 1 VPS.
-EC2 có đặc điểm trả phí tự scale tăng giảm server tuỳ lượng người dùng truy cập. Do đó các web nhỏ như blog web k nên dùng. VD có 1 blog hot nhiều ngừoi truy cập sẽ tự tăng số server lên tốn rất nhiều tiền nếu ta k để ý. Thay vì vậy nên dùng cloud khác có fix giới hạn băng thông để nhiều user truy cập quá băng thông sẽ chỉ bị loading lâu hơn.
+Elastic Compute Cloud: thuê VPN của AWS để chạy ứng dụng.
+Nó trả phí tự scale tăng giảm server tuỳ lượng người dùng truy cập. Do đó các web nhỏ như blog web k nên dùng, VD có 1 blog hay mà nhiều ngừoi truy cập sẽ làm EC2 tự tăng số server lên tốn rất nhiều tiền nếu ta k để ý. Thay vì vậy nên dùng cloud khác có fix giới hạn băng thông để nhiều user truy cập quá băng thông sẽ chỉ bị loading lâu hơn.
 
--> URL tạo EC2: https://www.youtube.com/watch?v=aLOcO8qT7k0&t=4s
+-> URL tạo EC2: https://www.youtube.com/watch?v=aLOcO8qT7 k0&t=4s
 URL cài nodejs và nginx EC2: https://www.youtube.com/watch?v=OWS7h5Mm-v8&t=275s
 server {
   server_name 54.169.183.179;
@@ -28,14 +27,13 @@ server {
   }
 }
 Lệnh ping phải enable inbound rule Custom ICMP Echo Request vì lệnh ping dùng ICMP.
-Để có trang web chuẩn phải mua 1 domain và mua chứng chỉ SSL. Amazon cấu hình router public IP rồi. Phải mua 1 domain để cấu hình DNS trỏ vào IP đó. 
-Certbot có thể tạo chứng chỉ SSL free 3 tháng uy tín, hết 3 tháng cấu hình lại là được. Chỉ khác chứng chỉ trả phí là trả phí thì bảo mật hơn thôi. 
+Amazon cấu hình router public IP rồi. Phải mua 1 domain và SSL để cấu hình DNS trỏ vào IP đó 
+=> Certbot có thể tạo chứng chỉ SSL free.
 
 -> Dùng MySQL trên EC2
 --> Section 70
 Nên dùng linux cho MySQL, ubuntu cho web server.
-Key pem phải lưu vào thư mục ~/.ssh có ở mọi máy: mv <source> ~/.ssh/
-Vào ubuntu thì việc đầu tiên nên làm là: sudo apt-get update 
+Key pem thường lưu vào thư mục ~/.ssh có ở mọi máy: mv <source> ~/.ssh/
 
 --> Section 71
 Setup mysql trên EC2 linux, truy cập với quyền admin
@@ -60,13 +58,12 @@ HTTPS 443 => khi dùng thêm SSL
 MySQL 3306 => khi dùng mysql protocol
 SSH 22 => luôn có để SSH vào EC2
  
--> Section 75: Setup domain hosting vào nginx. Dùng certbot ký SSL free . Tạo cron job service tự gia hạn SSL mỗi 90 ngày.
+-> Section 75: Setup domain hosting vào nginx. Dùng certbot ký SSL free, setup tự gia hạn SSL mỗi 90 ngày.
 
  
 
 # Simple Storage Service (S3)
-Là 1 bucket lưu data, có thể upload file vào. Liên kết ứng dụng vào aws để upload file, quản lý truy cập thêm, xoá, get files.
- 67 68 69
+Là 1 bucket lưu data, có thể upload, thêm, xoá, get files. 
 
 -> IAM (idenity and access management) là 1 service trong aws giúp tạo ra các user và cấp quyền user đó được phép làm gì với mọi loại dịch vụ khác.
 
@@ -142,7 +139,6 @@ Dùng openssl sinh cặp key -> vào cloudfront aws -> Thêm "Public key" vừa 
 -> Lex: tạo chatbot, như con alexa.
 -> Deep racer: có thể mua thiết bị deep racer để điều khiển với code ML ta tự tích hợp qua service deep racer.
 
--> IAM
 -> Cognito: tạo login nhiều hình thức qua email, mã điện thoại, quản lý session
 -> Simple notification service: gửi push notification cho user qua ứng dụng mobile
 -> Simple email service
