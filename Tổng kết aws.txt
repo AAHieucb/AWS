@@ -1,8 +1,43 @@
-# Amazon Q
-Extension AI giúp code suggestion, AI recommend cho cmd luôn.
+# AWS IAM (idenity and access management) 
+-> Tạo user, tạo policy, gán policy cho user trực tiếp 
+Tạo accesskey của user để tương tác với Amazon từ bên ngoài
+Tạo custom policy tương tác với S3. Nên luôn gán 1 description cụ thể mô tả cho IAM policy khi tạo
+=> ref tới section 65
+
+-> Permission boundaries giới hạn maximum permission của users. VD ta set permission boundary cho user, ngày hôm sau 1 ngừoi khác sửa quyền user đó thì sẽ kbh vượt quá quyền trong permission boundaries => Ít dùng
+Permission thực sẽ là giao của permission boundaries và policy bth.
+
+-> Role cung quyền truy cập AWS mà k cần 1 tk. Role k gắn với người dùng, chỉ cần gắn policy để cấp quyền. Khi dùng sẽ sinh ra thông tin xác thực tạm thời để thực hiện tác vụ.
+Role được sinh ra tự động bởi hệ thống và cũng có thể tự tạo.
+VD: 1 instance EC2 cần truy cập S3 để đọc/ghi dữ liệu. 1 ứng dụng ngoài truy cập. 1 tk muốn truy cập tài nguyên tk khác thì dùng cross-account role => có đủ mọi usecase
+
+-> Gán tag chỉ là để organize và search cho dễ nếu cần. 
+
+-> 1 user có thể assume 1 IAM role để dùng mọi quyền của roles đó. 
+Dùng user root và tạo role "AWS account" với account id của root luôn để user khác assume role này có thể thực hiện hành động như trên account root.
+C1: ta edit trusted entity cho phép 1 vài user được phép assume role này. Vd:
+"Principal": {
+  "AWS": [
+    "arn:aws:iam::387761480338:user/UserA",
+    "arn:aws:iam::387761480338:user/UserB",
+    "arn:aws:iam::387761480338:user/UserC"
+  ]
+} 
+Thì có thể switch role luôn trên các account kia
+C2: Ta cứ để trusted entity là account id của root thì mọi user đều có thể assume role nếu có policy.
+Ta vào từng user và thêm inline policy với action AssumeRole và resource là cái ARN của role, để bảo user này sẽ assume role nào. R vào switch role là được.
+Cũng có thể thêm các condition phức tạp khi thao tác với roles.
+
+//!!!!!!!
+Có thể tạo group
+Gán user vào group, copy policy từ 1 user
+IAM Identity center, TH tạo 1 roles cho EC2
 
 
 
+
+
+// Thực hành
 # EC2
 Elastic Compute Cloud: thuê VPN của AWS để chạy ứng dụng.
 Nó trả phí tự scale tăng giảm server tuỳ lượng người dùng truy cập. Do đó các web nhỏ như blog web k nên dùng, VD có 1 blog hay mà nhiều ngừoi truy cập sẽ làm EC2 tự tăng số server lên tốn rất nhiều tiền nếu ta k để ý. Thay vì vậy nên dùng cloud khác có fix giới hạn băng thông để nhiều user truy cập quá băng thông sẽ chỉ bị loading lâu hơn.
@@ -65,8 +100,7 @@ SSH 22 => luôn có để SSH vào EC2
 # Simple Storage Service (S3)
 Là 1 bucket lưu data, có thể upload, thêm, xoá, get files. 
 
--> IAM (idenity and access management) là 1 service trong aws giúp tạo ra các user và cấp quyền user đó được phép làm gì với mọi loại dịch vụ khác.
-
+-> IAM
 VD có thể giới hạn user được thao tác với bucket S3 nào, có quyền đọc ghi hay xoá, được phép gọi các function nào.
 Tạo policy -> cấp quyền với ARNs là tên của bucket S3 -> Tạo user -> Attach policies directly -> gán policy cho user -> App sẽ truy cập AWS resources dưới danh nghĩa user này
 Chọn user -> Create access key -> Dùng trong nodejs thì chọn "Third-party service" -> username là access key, password là secret access key -> NodeJS upload file lên S3 với tk đó bằng @aws-sdk/client-s3
@@ -85,63 +119,3 @@ Dùng openssl sinh cặp key -> vào cloudfront aws -> Thêm "Public key" vừa 
 => ref tới section 69
 
 -> CDNKey: website giúp test performance của CDN, nó sẽ gửi request truy cập từ nhiều nơi trên thế giới vào assets của ta để test tốc độ. 
-
-
-
-# Amazon có vô số services, nhiều services giống nhau chỉ khác có 1 tí để tối ưu cho case cụ thể:
--> Robotmaker: simulate và test robot AI
--> IoT Core: thu thập data từ robot sau khi được đưa vào sử dụng, update phần mềm và quản lý robots remotely.
--> Ground station: dùng rada của amazon để connect với vệ tinh 
--> Bracket: dùng quantum computer của amazon 
--> Budgets: quản lý lượng tiền sử dụng, tránh amazon trừ tiền bất thường vì dịch vụ nào bị quá tải.
-
--> Load balancer: phân phối tải cho các instance
--> Cloud watch: thu thập log và metrics thống kê từ các instance 
--> Auto scaling: nhận dữ liệu từ cloud watch và setup rules để thêm hay bớt server tuỳ ý dựa trên lượng traffic chẳng hạn
--> Elastic beanstalk: abstract của EC2 và auto scaling dùng dễ hơn và mọi thứ tự động 
-
--> Lightsail: service đơn giản nhất để deploy ứng dụng wordpress, nodejs, php chỉ với vài dòng click
--> Lamba: mô hình serverless, chỉ cần đăng code lên và chọn event xác định khi nào thì chạy code. 
--> Serverless repo: thậm chí lười viết code, ta có thể lấy sẵn pre-built function để deploy chạy 
--> Outposts: nếu ta có sẵn server và muốn custom việc chạy function trên đó thông qua các API thì dùng. 
--> Snow: khi cần dùng aws ở môi trường k có mạng hay khắc nhiệt như ở nam cực.
-
--> Container registry: user có thể upload docker image lên đây 
--> Container service: có thể pull image từ registry về để chạy. Phải thông qua EC2 để allocate vùng nhớ cho container mà dùng.
--> Kubernetes service: chạy K8s 
--> Fargate: khiến container hoạt động như 1 serverless function, k cần allocate vùng nhớ từ EC2 nữa.
--> App runners: chạy ứng dụng từ container image, tự động scale và làm mọi thứ khác.  
-
--> Glacier: tương tự S3 nhưng delay lớn hơn và giá rẻ hơn, dùng cho các archive file rất ít khi truy cập.
--> Block storage: tương tự S3, khi cần tốc độ cao và có thể xử lý phức tạp data nặng.
--> Elastic file system: performance tốt hơn và giá cao hơn. 
--> Simple DB: nosql db đơn giản.
--> Dynamo DB: mạnh hơn simple DB, rẻ, nhanh, scale dễ nhưng query vẫn yếu và k có join
--> Document DB: mạnh như mongodb
--> Elastic search: full text search
--> RDB: amazon relational db support mọi loại SQL 
--> Aurora: phiên bản SQL riêng của amazon, nhanh hơn mysql và giá rẻ hơn, hỗ trợ cả dạng serverless
--> Neptune: graph database có performance cao hơn với connected data set dạng graph.
--> Elastic cache: giống redis
--> Timestream: time series database, dễ dàng thống kê
--> Quantum ledger database: lưu data k thể thay đổi được ký mã hoá như blockchain 
-
--> Redshift: 1 cái stores để dump mọi data từ nhiều source vào phục vụ cho thống kê
--> Lake information: nếu có quá nhiều data unstructured cần lưu thì cho vào data-lake này.
--> Kinesis: tool giúp capture realtime data từ stream nào đó và visualize. 
--> Map reduce: để xử lý realtime stream phức tạp, lớn và song song, có thể dùng Apache spark cho chạy trên Elastic Map Reduce.
--> MSK: tool khác giống kinesis nhưng khi ta muốn chạy Apache Kafka 
--> Glue: là tool serverless đơn giản hơn trong việc extract, transform, load data, thậm chí k cần viết code. Nó tự động connect vào các datasource trên aws như aurora.
-
--> Data exchange: nơi mua quality data từ các third party khác.
--> Sagemaker: connect vào data và dùng tensorflow hay pytorch để tạo model ML, train và deploy.
--> Rekognition: cùng api dùng model classification tối ưu có sẵn k cần phải tự viết nữa. 
--> Lex: tạo chatbot, như con alexa.
--> Deep racer: có thể mua thiết bị deep racer để điều khiển với code ML ta tự tích hợp qua service deep racer.
-
--> Cognito: tạo login nhiều hình thức qua email, mã điện thoại, quản lý session
--> Simple notification service: gửi push notification cho user qua ứng dụng mobile
--> Simple email service
--> Cloud formation: giúp tạo template cho các service bằng yaml, là có thể tạo hàng trăm service với config tuỳ chỉnh chỉ với vài click
--> Amplify: tương tác với hàng loạt aws service đã tạo từ các loại FE android, iOS, web.
-

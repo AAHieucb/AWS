@@ -1,0 +1,68 @@
+# Amazon Q
+Extension AI giúp code suggestion, AI recommend cho cmd luôn.
+
+
+
+# Amazon có vô số services, nhiều services giống nhau chỉ khác có 1 tí để tối ưu cho case cụ thể:
+-> Robotmaker: simulate và test robot AI
+-> IoT Core: thu thập data từ robot sau khi được đưa vào sử dụng, update phần mềm và quản lý robots remotely.
+-> Ground station: dùng rada của amazon để connect với vệ tinh 
+-> Bracket: dùng quantum computer của amazon 
+-> Budgets: quản lý lượng tiền sử dụng, tránh amazon trừ tiền bất thường vì dịch vụ nào bị quá tải.
+
+-> Cloud watch: thu thập log và metrics thống kê từ các instance 
+-> Auto scaling: nhận dữ liệu từ cloud watch và setup rules để thêm hay bớt server tuỳ ý dựa trên lượng traffic chẳng hạn
+-> Elastic beanstalk: abstract của EC2 và auto scaling dùng dễ hơn và mọi thứ tự động 
+-> RDS Proxy: là global connection pool quản lý connection gọi tới các db
+
+-> Lightsail: service đơn giản nhất để deploy ứng dụng wordpress, nodejs, php chỉ với vài dòng click
+-> Lamba: mô hình serverless, chỉ cần đăng code lên và chọn event xác định khi nào thì chạy code. 
+-> Serverless repo: thậm chí lười viết code, ta có thể lấy sẵn pre-built function để deploy chạy 
+-> Outposts: nếu ta có sẵn server và muốn custom việc chạy function trên đó thông qua các API thì dùng. 
+-> Snow: khi cần dùng aws ở môi trường k có mạng hay khắc nhiệt như ở nam cực.
+
+-> Container registry: user có thể upload docker image lên đây 
+-> Container service: có thể pull image từ registry về để chạy. Phải thông qua EC2 để allocate vùng nhớ cho container mà dùng.
+-> Kubernetes service: chạy K8s 
+-> Fargate: khiến container hoạt động như 1 serverless function, k cần allocate vùng nhớ từ EC2 nữa.
+-> App runners: chạy ứng dụng từ container image, tự động scale và làm mọi thứ khác.  
+
+-> Glacier: tương tự S3 nhưng delay lớn hơn và giá rẻ hơn, dùng cho các archive file rất ít khi truy cập.
+-> Block storage: tương tự S3, khi cần tốc độ cao và có thể xử lý phức tạp data nặng.
+-> Elastic file system: performance tốt hơn và giá cao hơn. 
+-> Simple DB: nosql db đơn giản.
+-> Dynamo DB: mạnh hơn simple DB, rẻ, nhanh, scale dễ nhưng query vẫn yếu và k có join
+-> Document DB: mạnh như mongodb
+-> Elastic search: full text search
+-> RDB: amazon relational db support mọi loại SQL 
+-> Aurora: phiên bản SQL riêng của amazon, nhanh hơn mysql và giá rẻ hơn, hỗ trợ cả dạng serverless
+-> Neptune: graph database có performance cao hơn với connected data set dạng graph.
+-> Elastic cache: giống redis
+-> Timestream: time series database, dễ dàng thống kê
+-> Quantum ledger database: lưu data k thể thay đổi được ký mã hoá như blockchain 
+
+-> Redshift: 1 cái stores để dump mọi data từ nhiều source vào phục vụ cho thống kê
+-> Lake information: nếu có quá nhiều data unstructured cần lưu thì cho vào data-lake này.
+-> Kinesis: tool giúp capture realtime data từ stream nào đó và visualize. 
+-> Map reduce: để xử lý realtime stream phức tạp, lớn và song song, có thể dùng Apache spark cho chạy trên Elastic Map Reduce.
+-> MSK: tool khác giống kinesis nhưng khi ta muốn chạy Apache Kafka 
+-> Glue: là tool serverless đơn giản hơn trong việc extract, transform, load data, thậm chí k cần viết code. Nó tự động connect vào các datasource trên aws như aurora.
+
+-> Data exchange: nơi mua quality data từ các third party khác.
+-> Sagemaker: connect vào data và dùng tensorflow hay pytorch để tạo model ML, train và deploy.
+-> Rekognition: cùng api dùng model classification tối ưu có sẵn k cần phải tự viết nữa. 
+-> Lex: tạo chatbot, như con alexa.
+-> Deep racer: có thể mua thiết bị deep racer để điều khiển với code ML ta tự tích hợp qua service deep racer.
+
+-> Cognito: tạo login nhiều hình thức qua email, mã điện thoại, quản lý session
+-> Simple notification service: gửi push notification cho user qua ứng dụng mobile
+-> Simple email service
+-> Cloud formation: giúp tạo template cho các service bằng yaml, là có thể tạo hàng trăm service với config tuỳ chỉnh chỉ với vài click
+-> Amplify: tương tác với hàng loạt aws service đã tạo từ các loại FE android, iOS, web.
+
+
+
+# Other
+ARN là amazon resource name là duy nhất cho mỗi object trong amazon
+
+
