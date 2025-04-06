@@ -1,0 +1,7 @@
+-> IAM phân quyền: user, group, policy, role
+AssumeRole
+Billing dashboard, AWS Organizations, Identity center
+
+-> 
+
+

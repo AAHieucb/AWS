@@ -2,6 +2,7 @@
 -> Tạo user, tạo policy, gán policy cho user trực tiếp 
 Tạo accesskey của user để tương tác với Amazon từ bên ngoài
 Tạo custom policy tương tác với S3. Nên luôn gán 1 description cụ thể mô tả cho IAM policy khi tạo
+Gán tag chỉ là để organize và search cho dễ nếu cần. 
 => ref tới section 65
 
 -> Permission boundaries giới hạn maximum permission của users. VD ta set permission boundary cho user, ngày hôm sau 1 ngừoi khác sửa quyền user đó thì sẽ kbh vượt quá quyền trong permission boundaries => Ít dùng
@@ -10,8 +11,6 @@ Permission thực sẽ là giao của permission boundaries và policy bth.
 -> Role cung quyền truy cập AWS mà k cần 1 tk. Role k gắn với người dùng, chỉ cần gắn policy để cấp quyền. Khi dùng sẽ sinh ra thông tin xác thực tạm thời để thực hiện tác vụ.
 Role được sinh ra tự động bởi hệ thống và cũng có thể tự tạo.
 VD: 1 instance EC2 cần truy cập S3 để đọc/ghi dữ liệu. 1 ứng dụng ngoài truy cập. 1 tk muốn truy cập tài nguyên tk khác thì dùng cross-account role => có đủ mọi usecase
-
--> Gán tag chỉ là để organize và search cho dễ nếu cần. 
 
 -> 1 user có thể assume 1 IAM role để dùng mọi quyền của roles đó. 
 Dùng user root và tạo role "AWS account" với account id của root luôn để user khác assume role này có thể thực hiện hành động như trên account root.
@@ -23,20 +22,41 @@ C1: ta edit trusted entity cho phép 1 vài user được phép assume role này
     "arn:aws:iam::387761480338:user/UserC"
   ]
 } 
-Thì có thể switch role luôn trên các account kia
+Thì có thể switch role luôn trên các account kia (acc root k có option switch role)
 C2: Ta cứ để trusted entity là account id của root thì mọi user đều có thể assume role nếu có policy.
 Ta vào từng user và thêm inline policy với action AssumeRole và resource là cái ARN của role, để bảo user này sẽ assume role nào. R vào switch role là được.
 Cũng có thể thêm các condition phức tạp khi thao tác với roles.
 
-//!!!!!!!
-Có thể tạo group
-Gán user vào group, copy policy từ 1 user
-IAM Identity center, TH tạo 1 roles cho EC2
+-> Vào billing dashboard
+
+-> AWS Organizations: 1 acc chỉ tạo được 1 org và là management acc của org đó hoặc được add vào 1 org khác, k thể cả 2. 1 org luôn có 1 root node và 1 management account
+1 account là 1 tài khoản admin có duy nhất 1 account ID và login được. Có thể tạo nhiều users trong 1 account đó. Các account trong AWS luôn độc lập nhau và là 1 môi trường riêng biệt. VD có thể tạo 3 account cho 3 môi trường độc lập: QA, dev, test với hàng loạt users bên trong. Mỗi account có billing riêng luôn.
+Để login 1 account mới, phải ấn forgot password.
+Trong 1 org, có thể tạo nhiều AWS account bên trong. Có thể tạo các organization unit chỉ để chia nhóm quản lý các account khác nhau.
+VD: tạo 1 root account duy nhất trong AWS, tạo 1 org thì nó sẽ là management acc của org đó, rồi tạo tiếp 3 account nữa cho 3 môi trường. 
+
+-> Có thể tạo group. Gán user vào group.
+Tạo 1 user có policy copy từ 1 user khác.
+
+-> Dùng IAM Identity center: single sign in vào thấy tất cả aws account (như aws organization), thậm chí mọi account dùng cho M365, EC2.
+Vào console của từng account, set permission cho mọi account ở chung 1 nơi.
+Chọn identity source: có thể dùng như mặc định trong awx, hoặc bên thứ 3 như okta, hoặc từ microsoft active directory nếu có.
+Bình thường dùng aws organization tạo 1 aws account, rồi vào account tạo users groups bên trong. Còn identity center có thể tạo users groups ở level ngoài. 
+VD tạo 1 user r gắn với 1 aws account kèm 1 permission set thì user có thể thao tác với account trong phạm vi permission đó. User login vào và chọn thao tác với aws acc nào, or có cả các external application được configured trong identity center mà user được gắn vào.
+
+TK: 
+Dùng 1 account mặc định và tạo users groups trong nó. 
+Dùng aws org tạo và quản lý nhiều aws account độc lập
+Dùng iam identity center tạo users groups dùng accross aws accounts với permission độc lập
+Xoá iam identity center chỉ mất các users groups ở level ngoài
+Xoá aws org thì các aws account vẫn hoạt động bth chỉ là mất khỏi cây organization. Xoá org sẽ k còn 1 nơi nào để xem list các aws account nữa.
 
 
 
 
 
+
+//!!!!!!!!
 // Thực hành
 # EC2
 Elastic Compute Cloud: thuê VPN của AWS để chạy ứng dụng.

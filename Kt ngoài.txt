@@ -37,7 +37,7 @@ Extension AI giúp code suggestion, AI recommend cho cmd luôn.
 -> RDB: amazon relational db support mọi loại SQL 
 -> Aurora: phiên bản SQL riêng của amazon, nhanh hơn mysql và giá rẻ hơn, hỗ trợ cả dạng serverless
 -> Neptune: graph database có performance cao hơn với connected data set dạng graph.
--> Elastic cache: giống redis
+-> Elastic cache: hỗ trợ 2 engines redis và memcached
 -> Timestream: time series database, dễ dàng thống kê
 -> Quantum ledger database: lưu data k thể thay đổi được ký mã hoá như blockchain 
 
